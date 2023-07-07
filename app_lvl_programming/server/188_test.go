@@ -14,7 +14,6 @@ import (
 
 var t = template.Must(template.New("hello").Parse("Hello, {{.}}!"))
 
-
 func DefaultHandler() http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +21,7 @@ func DefaultHandler() http.HandlerFunc {
 				_, _ = io.Copy(ioutil.Discard, r)
 				_ = r.Close()
 			}(r.Body)
-			
+
 			var b []byte
 
 			switch r.Method {
@@ -33,7 +32,7 @@ func DefaultHandler() http.HandlerFunc {
 				b, err = ioutil.ReadAll(r.Body)
 				if err != nil {
 					http.Error(w, "Internal server",
-					http.StatusInternalServerError)
+						http.StatusInternalServerError)
 					return
 				}
 			default:
@@ -52,7 +51,7 @@ func TestSimpleHTTPServer(t *testing.T) {
 		Addr: "127.0.0.1:8081",
 		Handler: http.TimeoutHandler(
 			DefaultHandler(), 2*time.Minute, ""),
-		IdleTimeout: 5 * time.Minute,
+		IdleTimeout:       5 * time.Minute,
 		ReadHeaderTimeout: time.Minute,
 	}
 
@@ -60,7 +59,6 @@ func TestSimpleHTTPServer(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
 
 	go func() {
 		err := srv.Serve(l)
@@ -70,11 +68,11 @@ func TestSimpleHTTPServer(t *testing.T) {
 	}()
 
 	testCases := []struct {
-		method		string
-		body		io.Reader
-		code		int
-		response	string
-	} {
+		method   string
+		body     io.Reader
+		code     int
+		response string
+	}{
 		{http.MethodGet, nil, http.StatusOK, "Hello, friend!"},
 		{http.MethodPost, bytes.NewBufferString("<world>"), http.StatusOK,
 			"Hello, &lt;world&gt;!"},
@@ -118,6 +116,3 @@ func TestSimpleHTTPServer(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-
-
-
